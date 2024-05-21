@@ -1,6 +1,5 @@
 import Link from "next/link"
 import {
-  Activity,
   ArrowUpRight,
   Axis3D,
   Package,
@@ -30,7 +29,16 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 
-export default function Dashboard() {
+import { getDashboardTotalCount, getDashboardActiveLayers, getDashboardRecentLayers } from '@/lib/action'
+
+export default async function Dashboard() {
+  const countRes = await getDashboardTotalCount();
+  const recentLayersRes = await getDashboardRecentLayers();
+  // const activeLayersRes = await getDashboardActiveLayers();
+  console.log("--data--")
+  console.log(countRes)
+  console.log(recentLayersRes.data)
+  const { namespaceCount, dataStoreCount, layerCount, spatialReferenceCount } = countRes.data;
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -42,7 +50,7 @@ export default function Dashboard() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{namespaceCount}</div>
             <p className="text-xs text-muted-foreground">
               {/* +20.1% from last month */}
             </p>
@@ -56,7 +64,7 @@ export default function Dashboard() {
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{dataStoreCount}</div>
             <p className="text-xs text-muted-foreground">
               {/* +180.1% from last month */}
             </p>
@@ -68,7 +76,7 @@ export default function Dashboard() {
             <Layers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7</div>
+            <div className="text-2xl font-bold">{layerCount}</div>
             <p className="text-xs text-muted-foreground">
               {/* +19% from last month */}
             </p>
@@ -80,7 +88,7 @@ export default function Dashboard() {
             <Axis3D className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2450</div>
+            <div className="text-2xl font-bold">{spatialReferenceCount}</div>
             <p className="text-xs text-muted-foreground">
               {/* +201 since last hour */}
             </p>
@@ -109,120 +117,43 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="hidden xl:table-column">
+                  <TableHead>Name</TableHead>
+                  {/* <TableHead className="hidden xl:table-column">
                     Type
                   </TableHead>
                   <TableHead className="hidden xl:table-column">
                     Status
                   </TableHead>
                   <TableHead className="hidden xl:table-column">
-                    Date
-                  </TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                    Geom
+                  </TableHead> */}
+                  <TableHead className="text-right">Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Liam Johnson</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      liam@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    Sale
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    <Badge className="text-xs" variant="outline">
-                      Approved
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                    2023-06-23
-                  </TableCell>
-                  <TableCell className="text-right">$250.00</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Olivia Smith</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      olivia@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    Refund
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    <Badge className="text-xs" variant="outline">
-                      Declined
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                    2023-06-24
-                  </TableCell>
-                  <TableCell className="text-right">$150.00</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Noah Williams</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      noah@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    Subscription
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    <Badge className="text-xs" variant="outline">
-                      Approved
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                    2023-06-25
-                  </TableCell>
-                  <TableCell className="text-right">$350.00</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Emma Brown</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      emma@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    Sale
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    <Badge className="text-xs" variant="outline">
-                      Approved
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                    2023-06-26
-                  </TableCell>
-                  <TableCell className="text-right">$450.00</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <div className="font-medium">Liam Johnson</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      liam@example.com
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    Sale
-                  </TableCell>
-                  <TableCell className="hidden xl:table-column">
-                    <Badge className="text-xs" variant="outline">
-                      Approved
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                    2023-06-27
-                  </TableCell>
-                  <TableCell className="text-right">$550.00</TableCell>
-                </TableRow>
+                {recentLayersRes.data.map((layer: any) => {
+                  return (<TableRow>
+                    <TableCell>
+                      <div className="font-medium">{layer.name}</div>
+                      <div className="hidden text-sm text-muted-foreground md:inline">
+                        {layer.view.sql}
+                      </div>
+                    </TableCell>
+
+                    {/* <TableCell className="hidden xl:table-column">
+                      Sale
+                    </TableCell>
+                    <TableCell className="hidden xl:table-column">
+                      <Badge className="text-xs" variant="outline">
+                        Approved
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                      2023-06-23
+                    </TableCell> */}
+                    <TableCell className="text-right">{layer.created}</TableCell>
+                  </TableRow>)
+                })}
               </TableBody>
             </Table>
           </CardContent>
