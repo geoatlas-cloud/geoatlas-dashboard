@@ -35,9 +35,6 @@ export default async function Dashboard() {
   const countRes = await getDashboardTotalCount();
   const recentLayersRes = await getDashboardRecentLayers();
   // const activeLayersRes = await getDashboardActiveLayers();
-  console.log("--data--")
-  console.log(countRes)
-  console.log(recentLayersRes.data)
   const { namespaceCount, dataStoreCount, layerCount, spatialReferenceCount } = countRes.data;
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -132,7 +129,7 @@ export default async function Dashboard() {
               </TableHeader>
               <TableBody>
                 {recentLayersRes.data.map((layer: any) => {
-                  return (<TableRow>
+                  return (<TableRow key={layer.id}>
                     <TableCell>
                       <div className="font-medium">{layer.name}</div>
                       <div className="hidden text-sm text-muted-foreground md:inline">
