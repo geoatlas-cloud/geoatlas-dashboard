@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { GeometryType } from "./definitions";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -37,3 +38,19 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+export function getGeomType(type: number): string {
+  if(type < 0) {
+    return 'Unknown color';
+  }
+  switch (type) {
+    case GeometryType.POINT:
+      return 'POINT';
+    case GeometryType.LineString:
+      return 'LineString';
+    case GeometryType.Polygon:
+      return 'Polygon';
+    default:
+      return 'Geometry';
+  }
+}

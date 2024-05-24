@@ -20,8 +20,27 @@ export enum DatabaseType {
   sqlserver = "sqlserver"
 }
 
+export const initDatastore: Datastore = {
+  id: -1,
+  namespaceId: -1,
+  name: "",
+  description: "",
+  type: DatabaseType.postgis,
+  host: "",
+  port: "",
+  schema: "",
+  database: "",
+  user: "",
+  password: "",
+  maxConnections: -1,
+  minConnections: -1,
+  connectionTimeout: -1,
+  validateConnections: true,
+  fetchSize: -1
+}
+
 export type Datastore = {
-  id?: number;
+  id: number;
   namespaceId: number;
   name: string;
   description: string;
@@ -41,73 +60,49 @@ export type Datastore = {
   modified?: string;
 };
 
-export type Invoice = {
-  id: string;
-  customer_id: string;
-  amount: number;
-  date: string;
-  // In TypeScript, this is called a string union type.
-  // It means that the "status" property can only be one of the two strings: 'pending' or 'paid'.
-  status: 'pending' | 'paid';
-};
+export enum GeometryType {
+  POINT = 1,
+  LineString = 2,
+  Polygon = 3,
+  // 此处在服务端的处理中, 凡是不属于1,2,3的全给指定为Geometry
+  Geometry = 4
+}
 
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
+export type VirtualView = {
+  id?: number;
+  name?: string;
+  sql: string;
+  pkColumns: string;
+  geometryColumn: string;
+  geometryType: GeometryType;
+  srid: number;
+}
 
-export type LatestInvoice = {
-  id: string;
-  name: string;
-  image_url: string;
-  email: string;
-  amount: string;
-};
+const initView: VirtualView = {
+  sql: "",
+  pkColumns: "id,",
+  geometryColumn: "geom",
+  geometryType: GeometryType.Geometry,
+  srid: 3857
+}
 
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestInvoiceRaw = Omit<LatestInvoice, 'amount'> & {
-  amount: number;
-};
+export type FeatureLayer = {
+  id?: number;
+  namespaceId: number;
+  spatialReferenceId: number | null;
+  datastoreId: number;
+  name: string,
+  view: VirtualView;
+  description: string;
+  created?: Date;
+  modified?: Date;
+}
 
-export type InvoicesTable = {
-  id: string;
-  customer_id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  date: string;
-  amount: number;
-  status: 'pending' | 'paid';
-};
-
-export type CustomersTableType = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: number;
-  total_paid: number;
-};
-
-export type FormattedCustomersTable = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: string;
-  total_paid: string;
-};
-
-export type CustomerField = {
-  id: string;
-  name: string;
-};
-
-export type InvoiceForm = {
-  id: string;
-  customer_id: string;
-  amount: number;
-  status: 'pending' | 'paid';
-};
+export const initFeatureLayer: FeatureLayer = {
+  namespaceId: -1,
+  spatialReferenceId: null,
+  datastoreId: -1,
+  name: "",
+  view: initView,
+  description: ""
+}

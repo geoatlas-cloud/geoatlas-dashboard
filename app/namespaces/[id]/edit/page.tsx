@@ -74,7 +74,6 @@ export default function EditNamespace({ params }: { params: { id: string } }) {
             const {data} = await fetchNamespaceById(id);
             if (!ignore) {
                 setNamespace(data);
-                form.setValue
             }
         }
         startFetching();

@@ -16,15 +16,20 @@ import {
 } from "@/components/ui/card"
 import { notFound } from "next/navigation"
 
-import { createDatastore, fetchNamespaceList } from "@/lib/action"
-import DatastoreForm from "@/components/datastore-form"
-import { initDatastore } from "@/lib/definitions"
+import { createFeatureLayer, fetchNamespaceList, fetchDatastoreList, pageSpatialRef } from "@/lib/action"
+import FeatureLayerForm from "@/components/layer-form"
+import { initFeatureLayer, Datastore } from "@/lib/definitions"
+
 
 export default async function CreateDatastore() {
 
-    const namespacesRes = await fetchNamespaceList()
+    const [namespacesRes, datastoresRes, spatialRefsRes] = await Promise.all([
+        fetchNamespaceList(),
+        fetchDatastoreList(),
+        pageSpatialRef({page: 1, size: 6}),
+    ]);
 
-    if(!namespacesRes.data){
+    if(!namespacesRes.data || !datastoresRes.data){
         notFound()
     }
 
@@ -41,7 +46,7 @@ export default async function CreateDatastore() {
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild>
-                                <Link href="/datastores">Datastores</Link>
+                                <Link href="/layers">FeatureLayers</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
@@ -54,13 +59,13 @@ export default async function CreateDatastore() {
             <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Datastore Details</CardTitle>
+                        <CardTitle>FeatureLayer Details</CardTitle>
                         <CardDescription>
-                            create datastore
+                            create featureLayer.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <DatastoreForm datastore={initDatastore} namespaces={namespacesRes.data} handleSubmit={createDatastore} />
+                        <FeatureLayerForm featureLayer={initFeatureLayer} namespaces={namespacesRes.data} datastores={datastoresRes.data} handleSubmit={createFeatureLayer} />
                     </CardContent>
                 </Card>
             </main>
