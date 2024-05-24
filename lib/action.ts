@@ -88,6 +88,17 @@ export async function fetchNamespaceById(id: string) {
     return res.json();
 }
 
+export async function fetchNamespaceList(){
+    const finalUrl = `${namespaceBaseUrl}/list`
+    const res = await fetch(finalUrl)
+
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to fetch data')
+    }
+    return res.json();
+}
+
 export async function removeNamespace(id: string) {
     const finalUrl = `${namespaceBaseUrl}/${id}`
     const res = await fetch(finalUrl, {
@@ -124,4 +135,100 @@ export async function updateNamespace(id: string, data: any) {
     }
     revalidatePath('/namespaces');
     redirect('/namespaces');
+}
+
+
+// Datastore
+const pageDatastoreBaseUrl = "http://192.168.199.247:2024/v1/metadata/datastores/page"
+const datastoreBaseUrl = "http://192.168.199.247:2024/v1/metadata/datastores"
+export async function pageDatastores(pageRequest: { page: number, size: number, name?: string | null }) {
+    noStore();
+    const { page, size, name } = pageRequest
+    const params = new URLSearchParams();
+    if (name) {
+        params.set('name', name)
+    }
+    // 因为我使用JPA, JPA分页码从0开始
+    const finalPage = page === 0 ? 0 : page - 1;
+    params.set('page', finalPage.toString())
+    params.set('size', size.toString())
+    const url = `${pageDatastoreBaseUrl}?${[params.toString()]}`
+    const res = await fetch(url)
+
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to fetch data')
+    }
+    return res.json();
+}
+
+export async function createDatastore(data: any) {
+    // console.log(data)
+    const res = await fetch(datastoreBaseUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data), // body data type must match "Content-Type" header
+    })
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to create namespace.')
+    }
+    revalidatePath('/datastores');
+    redirect('/datastores');
+}
+
+export async function fetchDatastoreById(id: string) {
+    const finalUrl = `${datastoreBaseUrl}/${id}`
+    const res = await fetch(finalUrl)
+
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to fetch data')
+    }
+    return res.json();
+}
+
+// 这里的id应该是number类型才对, 不过服务端的类型转换给兜底了
+export async function updateDatastore(id: string, data: any) {
+
+    const finalData = {
+        ...data,
+        id
+    }
+    // console.log(finalData)
+    const res = await fetch(datastoreBaseUrl, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(finalData), // body data type must match "Content-Type" header
+    })
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to create namespace.')
+    }
+    revalidatePath('/datastores');
+    redirect('/datastores');
+}
+
+export async function removeDatastore(id: string) {
+    const finalUrl = `${datastoreBaseUrl}/${id}`
+    const res = await fetch(finalUrl, {
+        method: "DELETE",
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer",
+    })
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to create namespace.')
+    }
+    revalidatePath('/datastores');
 }
