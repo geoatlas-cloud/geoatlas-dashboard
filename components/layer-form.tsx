@@ -46,29 +46,9 @@ import { pageSpatialRef } from "@/lib/action"
 
 const FormSchema = z.object({
 
-    namespaceId: z.string({ required_error: "Please select an namespace.", }).transform((val, ctx) => {
-        const parsed = parseFloat(val);
-        if (isNaN(parsed)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Invalid number format",
-            });
-            return z.NEVER;
-        }
-        return parsed;
-    }),
-    datastoreId: z.string({ required_error: "Please select an datastore.", }).transform((val, ctx) => {
-        const parsed = parseFloat(val);
-        if (isNaN(parsed)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Invalid number format",
-            });
-            return z.NEVER;
-        }
-        return parsed;
-    }),
-    spatialReferenceId: z.number().gt(0).nullable(),
+    namespaceId: z.coerce.number({ required_error: "Please select an namespace.", }).gt(0),
+    datastoreId: z.coerce.number({ required_error: "Please select an datastore.", }).gt(0),
+    spatialReferenceId: z.coerce.number().gt(0).nullable(),
     name: z.string().min(1, {
         message: "name must be at least 1 characters.",
     }).max(50, {
@@ -79,17 +59,7 @@ const FormSchema = z.object({
         pkColumns: z.string({ required_error: "Please fill in the pkColumns value.", }),
         geometryColumn: z.string({ required_error: "Please fill in the geometryColumn value.", }),
         geometryType: z.nativeEnum(GeometryType),
-        srid: z.string({ required_error: "Please fill in the srid value.", }).transform((val, ctx) => {
-            const parsed = parseFloat(val);
-            if (isNaN(parsed)) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Invalid number format",
-                });
-                return z.NEVER;
-            }
-            return parsed;
-        })
+        srid: z.coerce.number({ required_error: "Please fill in the srid value.", }).gte(0)
     }),
 
     description: z.string().max(200, {
@@ -98,20 +68,24 @@ const FormSchema = z.object({
 })
 const initSpatialRefs: any = []
 // 后续在添加类型
-export default function FeatureLayerForm({ featureLayer, namespaces, datastores, handleSubmit }: { featureLayer: FeatureLayer, namespaces: Namespace[], datastores: Datastore[], handleSubmit: Function }) {
+export default function FeatureLayerForm({ 
+    featureLayer, namespaces, datastores, forceSpatialRef, handleSubmit 
+}: { featureLayer: FeatureLayer, namespaces: Namespace[], datastores: Datastore[], forceSpatialRef?: any, handleSubmit: Function }) {
 
     const [spatialRefs, setSpatialRefs] = useState(initSpatialRefs)
-    const [spatialRefParam, setSpatialRefParam] = useState("")
+    const [spatialRefParam, setSpatialRefParam] = useState(forceSpatialRef?.name || "")
+
+    // console.log(featureLayer)
 
     useEffect(() => {
         let ignore = false;
 
         async function startFetching() {
             const { data } = await pageSpatialRef({ page: 1, size: 6, name: spatialRefParam });
-            console.log(data)
+            // console.log(data)
             if (!ignore) {
-                console.log("--set--")
-                console.log(data.content)
+                // console.log("--set--")
+                // console.log(data.content)
                 setSpatialRefs(data.content);
             }
         }
@@ -122,7 +96,7 @@ export default function FeatureLayerForm({ featureLayer, namespaces, datastores,
     }, [spatialRefParam])
 
     const handleSearch = useDebouncedCallback((param) => {
-        console.log(param)
+        // console.log(param)
         setSpatialRefParam(param)
     }, 300);
 

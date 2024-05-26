@@ -14,6 +14,7 @@ export async function getDashboardTotalCount() {
 }
 
 export async function getDashboardRecentLayers() {
+    noStore();
     const res = await fetch('http://192.168.199.247:2024/v1/dashboard/layers/recent')
 
     if (!res.ok) {
@@ -88,7 +89,7 @@ export async function fetchNamespaceById(id: string) {
     return res.json();
 }
 
-export async function fetchNamespaceList(){
+export async function fetchNamespaceList() {
     const finalUrl = `${namespaceBaseUrl}/list`
     const res = await fetch(finalUrl)
 
@@ -162,7 +163,7 @@ export async function pageDatastores(pageRequest: { page: number, size: number, 
     return res.json();
 }
 
-export async function fetchDatastoreList(){
+export async function fetchDatastoreList() {
     const finalUrl = `${datastoreBaseUrl}/list`
     const res = await fetch(finalUrl)
 
@@ -259,7 +260,7 @@ export async function pageFeatureLayer(pageRequest: { page: number, size: number
     params.set('page', finalPage.toString())
     params.set('size', size.toString())
     const url = `${pageLayerBaseUrl}?${[params.toString()]}`
-    console.log(url)
+    // console.log(url)
     const res = await fetch(url)
 
     if (!res.ok) {
@@ -272,7 +273,7 @@ export async function pageFeatureLayer(pageRequest: { page: number, size: number
 export async function createFeatureLayer(data: any) {
     // 目前认为没有必要单独为viwe填写name, 所以直接在此处用featureLayer的name赋值给view的name
     data.view.name = data.name;
-    console.log(data)
+    // console.log(data)
     const res = await fetch(layerBaseUrl, {
         method: "POST",
         headers: {
@@ -291,7 +292,7 @@ export async function createFeatureLayer(data: any) {
     redirect('/layers');
 }
 
-export async function fetchFeatureLayer(id: string) {
+export async function fetchFeatureLayerById(id: string) {
     const finalUrl = `${layerBaseUrl}/${id}`
     const res = await fetch(finalUrl)
 
@@ -304,7 +305,8 @@ export async function fetchFeatureLayer(id: string) {
 
 // 这里的id应该是number类型才对, 不过服务端的类型转换给兜底了
 export async function updateFeatureLayer(id: string, data: any) {
-
+    // 目前认为没有必要单独为viwe填写name, 所以直接在此处用featureLayer的name赋值给view的name
+    data.view.name = data.name;
     const finalData = {
         ...data,
         id
@@ -357,6 +359,19 @@ export async function pageSpatialRef(pageRequest: { page: number, size: number, 
     params.set('size', size.toString())
     const url = `${pageSpatialRefBaseUrl}?${[params.toString()]}`
     const res = await fetch(url)
+
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to fetch data')
+    }
+    return res.json();
+}
+
+const spatialRefBaseUrl = "http://192.168.199.247:2024/v1/metadata/spatial_refs"
+export async function fetchSpatialRefById(id: number) {
+    noStore();
+    const finalUrl = `${spatialRefBaseUrl}/${id}`
+    const res = await fetch(finalUrl)
 
     if (!res.ok) {
         // This will activate the closest `error.js` Error Boundary
