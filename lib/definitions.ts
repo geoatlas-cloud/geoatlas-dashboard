@@ -69,7 +69,7 @@ export enum GeometryType {
 }
 
 export type VirtualView = {
-  id?: number;
+  id: number | null;
   name?: string;
   sql: string;
   pkColumns: string;
@@ -79,6 +79,7 @@ export type VirtualView = {
 }
 
 const initView: VirtualView = {
+  id: null,
   sql: "",
   pkColumns: "id,",
   geometryColumn: "geom",
@@ -86,13 +87,29 @@ const initView: VirtualView = {
   srid: 3857
 }
 
+export type PyramidRuleExpression = {
+  id: number | null;
+  minLevel: number;
+  maxLevel: number;
+  filter: string;
+}
+
+const initPyramidRuleExpressions: PyramidRuleExpression[] = [{
+  id: null,
+  minLevel: 0,
+  maxLevel: 5,
+  filter: "EXCLUDE"
+}]
+
 export type FeatureLayer = {
   id?: number;
   namespaceId: number;
   spatialReferenceId: number | null;
   datastoreId: number;
-  name: string,
+  name: string;
   view: VirtualView;
+  enabledRules: boolean;
+  rules: PyramidRuleExpression[];
   description: string;
   created?: Date;
   modified?: Date;
@@ -104,5 +121,7 @@ export const initFeatureLayer: FeatureLayer = {
   datastoreId: -1,
   name: "",
   view: initView,
+  enabledRules: false,
+  rules: initPyramidRuleExpressions,
   description: ""
 }

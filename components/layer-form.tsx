@@ -1,10 +1,9 @@
 "use client"
 
-import Link from "next/link"
 import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { any, z } from "zod"
+import { useForm, useFieldArray } from "react-hook-form"
+import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,6 +36,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Namespace, Datastore, FeatureLayer, GeometryType } from "@/lib/definitions"
 import { Check, ChevronsUpDown } from "lucide-react"
@@ -55,27 +55,39 @@ const FormSchema = z.object({
         message: "name must not be longer than 50 characters."
     }),
     view: z.object({
+        id: z.nullable(z.coerce.number()),
         sql: z.string({ required_error: "Please fill in the sql value.", }),
         pkColumns: z.string({ required_error: "Please fill in the pkColumns value.", }),
         geometryColumn: z.string({ required_error: "Please fill in the geometryColumn value.", }),
         geometryType: z.nativeEnum(GeometryType),
         srid: z.coerce.number({ required_error: "Please fill in the srid value.", }).gte(0)
     }),
-
+    enabledRules: z.boolean(),
+    rules: z.array(
+        z.object({
+            id: z.nullable(z.coerce.number()),
+            minLevel: z.coerce.number({ required_error: "Please input the min level.", }).gte(0).lte(30),
+            maxLevel: z.coerce.number({ required_error: "Please input the max level.", }).gte(0).lte(30),
+            filter: z.coerce.string({ required_error: "Please input the rule filter expression.", }),
+        })
+    ).optional(),
     description: z.string().max(200, {
         message: "description must not be longer than 200 characters."
     })
 })
 const initSpatialRefs: any = []
 // 后续在添加类型
-export default function FeatureLayerForm({ 
-    featureLayer, namespaces, datastores, forceSpatialRef, handleSubmit 
+export default function FeatureLayerForm({
+    featureLayer, namespaces, datastores, forceSpatialRef, handleSubmit
 }: { featureLayer: FeatureLayer, namespaces: Namespace[], datastores: Datastore[], forceSpatialRef?: any, handleSubmit: Function }) {
 
     const [spatialRefs, setSpatialRefs] = useState(initSpatialRefs)
+    const [isEnableRules, setIsEnableRules] = useState((featureLayer.rules !== null && featureLayer.rules.length > 0))
     const [spatialRefParam, setSpatialRefParam] = useState(forceSpatialRef?.name || "")
 
-    // console.log(featureLayer)
+    featureLayer.enabledRules = (featureLayer.rules !== null && featureLayer.rules.length > 0)
+    console.log(featureLayer)
+    console.log((featureLayer.rules !== null && featureLayer.rules.length > 0))
 
     useEffect(() => {
         let ignore = false;
@@ -107,7 +119,19 @@ export default function FeatureLayerForm({
     })
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
+        if (!isEnableRules) {
+            data.rules = [];
+        }
         handleSubmit(data)
+    }
+
+    const { fields, append, remove } = useFieldArray({
+        name: "rules",
+        control: form.control,
+    })
+
+    function onEnabledRulesChange(value: boolean) {
+        setIsEnableRules(value)
     }
 
     return (
@@ -247,6 +271,25 @@ export default function FeatureLayerForm({
 
                 <FormField
                     control={form.control}
+                    name="view.id"
+                    render={({ field }) => (
+                        <FormItem className="hidden">
+                            <FormLabel>
+                                view id
+                            </FormLabel>
+                            <FormDescription>
+                                id.
+                            </FormDescription>
+                            <FormControl>
+                                <Input {...field} value={field.value ? field.value : ""} type="number" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
                     name="view.sql"
                     render={({ field }) => (
                         <FormItem>
@@ -336,6 +379,127 @@ export default function FeatureLayerForm({
 
                 <FormField
                     control={form.control}
+                    name="enabledRules"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    checked={isEnableRules}
+                                    onCheckedChange={onEnabledRulesChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                    EnabledRules
+                                </FormLabel>
+                                <FormDescription>
+                                    This is validateConnections of connections.
+                                    {/* <Link href="/examples/forms">mobile settings</Link> page. */}
+                                </FormDescription>
+                            </div>
+                        </FormItem>
+                    )}
+                />
+                {isEnableRules && (<div className="">
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="flex flex-row items-end space-x-2">
+                            <FormField
+                                control={form.control}
+                                name={`rules.${index}.id`}
+                                render={({ field }) => (
+                                    <FormItem className="hidden">
+                                        <FormLabel className={cn(index !== 0 && "sr-only")}>
+                                            Rule ID
+                                        </FormLabel>
+                                        <FormDescription className={cn(index !== 0 && "sr-only")}>
+                                            id.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ? field.value : ""} type="number" min={0} max={30} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`rules.${index}.minLevel`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-none w-20">
+                                        <FormLabel className={cn(index !== 0 && "sr-only")}>
+                                            MinLevel
+                                        </FormLabel>
+                                        <FormDescription className={cn(index !== 0 && "sr-only")}>
+                                            min level.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" min={0} max={30} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`rules.${index}.maxLevel`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-none w-20">
+                                        <FormLabel className={cn(index !== 0 && "sr-only")}>
+                                            MaxLevel
+                                        </FormLabel>
+                                        <FormDescription className={cn(index !== 0 && "sr-only")}>
+                                            max level.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" min={0} max={30} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`rules.${index}.filter`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-auto w-55">
+                                        <FormLabel className={cn(index !== 0 && "sr-only")}>
+                                            Rule Filter Expression
+                                        </FormLabel>
+                                        <FormDescription className={cn(index !== 0 && "sr-only")}>
+                                            CGL Expression.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button
+                                className="flex-none w-15"
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => remove(index)}
+                            >
+                                Remove
+                            </Button>
+                        </div>
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => append({ id: null, minLevel: 0, maxLevel: 0, filter: "EXCLUDE" })}
+                    >
+                        Add Rule
+                    </Button>
+                </div>)}
+
+
+                <FormField
+                    control={form.control}
                     name="description"
                     render={({ field }) => (
                         <FormItem>
@@ -358,6 +522,6 @@ export default function FeatureLayerForm({
 
                 <Button type="submit">Submit</Button>
             </form>
-        </Form>
+        </Form >
     )
 }
