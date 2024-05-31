@@ -6,10 +6,12 @@ import { SourceProps as MaplibreSourceProps, LayerProps as MaplibreLayerProps, M
 
 import { LayerPreviewInfo, ViewProps } from '@/lib/definitions';
 import { useSearchParams } from 'next/navigation';
-import { getBounds, lightColors, randomColor } from '@/lib/utils';
+import { getBounds, getFilterLayers } from '@/lib/utils';
 import { AppConfig, MapConfigConstants } from '@/lib/AppConfig';
-import MapboxRender from './MapboxRender';
-import MaplibreRender from './MaplibreRender';
+import MapboxRender from './mapbox/MapboxRender';
+import MaplibreRender from './maplibre/MaplibreRender';
+import MapboxEnhanceRender from './mapbox/MapboxEnhanceRender';
+import CGCS2000MapboxRender from './mapbox/CGCS2000MapboxRender';
 
 export default function MapContainer({ layer }: { layer: LayerPreviewInfo }) {
     const searchParams = useSearchParams();
@@ -28,17 +30,17 @@ export default function MapContainer({ layer }: { layer: LayerPreviewInfo }) {
     const { id, name, namespace, bbox, center, zoom } = layer
 
     const sourceId = `feature-layer-${id}-preview`
-    const layerColor = '#' + randomColor(lightColors);
+
     const bounds: LngLatBoundsLike = getBounds(bbox, schema)
     // 给一个默认的中心点, 如果没有设置bbox, 则定位到默认的中心点
     const _center: number[] = center ? [center.x, center.y] : [120.1552, 30.2741] // default to hangzhou
-    const _viewState : ViewProps = {}
-    if(bbox) {
+    const _viewState: ViewProps = {}
+    if (bbox) {
         _viewState.bounds = bounds
-    }else{
-        _viewState.longitude= _center[0]
-        _viewState.latitude= _center[1]
-        _viewState.zoom= zoom
+    } else {
+        _viewState.longitude = _center[0]
+        _viewState.latitude = _center[1]
+        _viewState.zoom = zoom
     }
 
     const style = {
@@ -69,82 +71,70 @@ export default function MapContainer({ layer }: { layer: LayerPreviewInfo }) {
         bounds
     }
 
-    const layers = [
-        {
-            id: 'point',
-            type: 'circle',
-            source: sourceId,
-            'source-layer': name,
-            filter: ['==', '$type', 'Point'],
-            'paint': {
-                'circle-color': layerColor,
-                'circle-radius': 2.5,
-                'circle-opacity': 0.75
-            }
-        },
-        {
-            id: 'lineString',
-            type: 'line',
-            source: sourceId,
-            'source-layer': name,
-            filter: ['==', '$type', 'LineString'],
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-            },
-            'paint': {
-                'line-color': layerColor,
-                'line-width': 1,
-                'line-opacity': 0.75
-            }
-        },
-        {
-            id: 'polygons',
-            type: 'fill',
-            source: sourceId,
-            'source-layer': name,
-            filter: ['==', '$type', 'Polygon'],
-            'layout': {},
-            'paint': {
-                'fill-opacity': 0.1,
-                'fill-color': layerColor
-            }
-        },
-        {
-            id: 'polygons-outline',
-            type: 'line',
-            source: sourceId,
-            'source-layer': name,
-            filter: ['==', '$type', 'Polygon'],
-            'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-              },
-              'paint': {
-                'line-color': layerColor,
-                'line-width': 1,
-                'line-opacity': 0.75
-              }
-        }
-    ]
-    if (AppConfig.map.engine === MapConfigConstants.MAPBOX || MapConfigConstants.TILE_SCHEMA_4490 === schema) {
+    const layers = getFilterLayers(sourceId, name)
+    if (MapConfigConstants.TILE_SCHEMA_4490 === schema) {
+        // 目前都是基于Mapbox系列
         const _style = style as MapStyle
         const _source = source as SourceProps
         const _layers = layers as LayerProps[]
-        return (
-            <MapboxRender
-                style={_style}
-                source={_source}
-                layers={_layers}
-                viewProps={_viewState}
-            />
+        if (MapConfigConstants.MAPBOX_CGCS2000 === AppConfig.map.engine.cgcs2000) {
+            return (
+                <CGCS2000MapboxRender
+                    style={_style}
+                    source={_source}
+                    layers={_layers}
+                    viewProps={_viewState}
+                />
 
-        );
+            );
+        } else {
+            return (
+                <MapboxEnhanceRender
+                    style={_style}
+                    source={_source}
+                    layers={_layers}
+                    viewProps={_viewState}
+                    schema={schema}
+                />
+
+            );
+        }
+
     } else {
+
+        if (MapConfigConstants.MAPBOX === AppConfig.map.engine.web_mercator) {
+            const _style = style as MapStyle
+            const _source = source as SourceProps
+            const _layers = layers as LayerProps[]
+            return (
+                <MapboxRender
+                    style={_style}
+                    source={_source}
+                    layers={_layers}
+                    viewProps={_viewState}
+                />
+
+            );
+        } else if (MapConfigConstants.MAPBOX_ENHAANCE === AppConfig.map.engine.web_mercator) {
+            const _style = style as MapStyle
+            const _source = source as SourceProps
+            const _layers = layers as LayerProps[]
+            return (
+                <MapboxEnhanceRender
+                    style={_style}
+                    source={_source}
+                    layers={_layers}
+                    viewProps={_viewState}
+                    schema={schema}
+                />
+
+            );
+        }
         const _style = style as MaplibreMapStyle
         const _source = source as MaplibreSourceProps
         const _layers = layers as MaplibreLayerProps[]
         return (
+
             <MaplibreRender
                 style={_style}
                 source={_source}

@@ -3,6 +3,8 @@ export enum MapConfigConstants {
     TIAN_DI_TU = "tianditu",
     MAPLIBRE = "maplibre",
     MAPBOX = "mapbox",
+    MAPBOX_ENHAANCE = "mapbox_enhance",
+    MAPBOX_CGCS2000 = "mapbox_cgcs2000",
     TILE_SCHEMA_4490 = "EPSG:4490",
     TILE_SCHEMA_3857 = "EPSG:3857"
 }
@@ -26,6 +28,9 @@ export const AppConfig = {
         mapbox: {
             token: process.env.NEXT_PUBLIC_MAPBOX_TOKEN
         },
-        engine: process.env.NEXT_PUBLIC_MAP_ENGINE || MapConfigConstants.MAPLIBRE
+        engine: {
+            web_mercator: process.env.NEXT_PUBLIC_WEB_MERCATOR_MAP_ENGINE || MapConfigConstants.MAPLIBRE,
+            cgcs2000: process.env.NEXT_PUBLIC_CGCS2000_MAP_ENGINE || MapConfigConstants.MAPLIBRE
+        }
     }
 }

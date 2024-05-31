@@ -6,6 +6,11 @@ import Map, { Layer, LayerProps, MapStyle, Source, SourceProps } from 'react-map
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ViewProps } from '@/lib/definitions';
 
+/**
+ * 仅支持3857
+ * @param param0 
+ * @returns 
+ */
 export default function MaplibreRender({ style, source, layers, viewProps }: { style: MapStyle, source: SourceProps, layers: LayerProps[], viewProps: ViewProps }) {
 
     // console.log(viewProps)

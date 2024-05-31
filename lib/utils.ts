@@ -95,3 +95,66 @@ export function getBounds(bbox: FeatureBBox | null, schema: string): LngLatBound
   // other schema?
   return default_web_mercator_bounds;
 }
+
+
+export function getFilterLayers(sourceId: string, layerName: string){
+  const layerColor = '#' + randomColor(lightColors);
+  return [
+    {
+        id: 'point',
+        type: 'circle',
+        source: sourceId,
+        'source-layer': layerName,
+        filter: ['==', '$type', 'Point'],
+        'paint': {
+            'circle-color': layerColor,
+            'circle-radius': 2.5,
+            'circle-opacity': 0.75
+        }
+    },
+    {
+        id: 'lineString',
+        type: 'line',
+        source: sourceId,
+        'source-layer': layerName,
+        filter: ['==', '$type', 'LineString'],
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': layerColor,
+            'line-width': 1,
+            'line-opacity': 0.75
+        }
+    },
+    {
+        id: 'polygons',
+        type: 'fill',
+        source: sourceId,
+        'source-layer': layerName,
+        filter: ['==', '$type', 'Polygon'],
+        'layout': {},
+        'paint': {
+            'fill-opacity': 0.1,
+            'fill-color': layerColor
+        }
+    },
+    {
+        id: 'polygons-outline',
+        type: 'line',
+        source: sourceId,
+        'source-layer': layerName,
+        filter: ['==', '$type', 'Polygon'],
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': layerColor,
+            'line-width': 1,
+            'line-opacity': 0.75
+        }
+    }
+]
+}
