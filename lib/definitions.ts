@@ -3,7 +3,7 @@
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 
-import { StringValidation } from "zod";
+import { LngLatBoundsLike, MapStyle } from "react-map-gl";
 
 export type Namespace = {
   id: number;
@@ -101,6 +101,30 @@ const initPyramidRuleExpressions: PyramidRuleExpression[] = [{
   filter: "EXCLUDE"
 }]
 
+export type FeatureBBox = {
+  id: number | null;
+  minx: number;
+  miny: number;
+  maxx: number;
+  maxy: number;
+  natived: boolean;
+}
+
+export type FeatureCenter = {
+  x: number;
+  y: number;
+}
+
+// 这里给出的范围时Web墨卡托的经纬度范围(WGS 84)
+const initFeatureBBox: FeatureBBox = {
+  id: null,
+  minx: -180,
+  miny: -85.05112877980659,
+  maxx: 180,
+  maxy: 85.0511287798066,
+  natived: false
+}
+
 export type FeatureLayer = {
   id?: number;
   namespaceId: number;
@@ -109,7 +133,9 @@ export type FeatureLayer = {
   name: string;
   view: VirtualView;
   enabledRules: boolean;
+  enableBBox: boolean,
   rules: PyramidRuleExpression[];
+  bbox: FeatureBBox | null,
   description: string;
   created?: Date;
   modified?: Date;
@@ -122,6 +148,24 @@ export const initFeatureLayer: FeatureLayer = {
   name: "",
   view: initView,
   enabledRules: false,
+  enableBBox: false,
   rules: initPyramidRuleExpressions,
+  bbox: null,
   description: ""
+}
+
+export type LayerPreviewInfo = {
+  id: number,
+  name: string,
+  namespace: string,
+  bbox: FeatureBBox | null,
+  center: FeatureCenter | null,
+  zoom: number
+}
+
+export type ViewProps = {
+  bounds?: LngLatBoundsLike,
+  longitude?: number,
+  latitude?: number,
+  zoom?: number
 }

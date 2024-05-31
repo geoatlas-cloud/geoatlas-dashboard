@@ -170,7 +170,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </DropdownMenuContent>
               </DropdownMenu>
             </header>
-            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-2">
+            <div className="flex flex-col flex-grow sm:gap-4 sm:py-4 sm:pl-2">
               {children}
             </div>
           </div>

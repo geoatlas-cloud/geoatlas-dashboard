@@ -2,9 +2,10 @@
 
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { AppConfig } from './AppConfig';
 
 export async function getDashboardTotalCount() {
-    const res = await fetch('http://192.168.199.247:2024/v1/dashboard/count')
+    const res = await fetch(`${AppConfig.backend.endpoint}/v1/dashboard/count`)
 
     if (!res.ok) {
         // This will activate the closest `error.js` Error Boundary
@@ -15,7 +16,7 @@ export async function getDashboardTotalCount() {
 
 export async function getDashboardRecentLayers() {
     noStore();
-    const res = await fetch('http://192.168.199.247:2024/v1/dashboard/layers/recent')
+    const res = await fetch(`${AppConfig.backend.endpoint}/v1/dashboard/layers/recent`)
 
     if (!res.ok) {
         // This will activate the closest `error.js` Error Boundary
@@ -25,7 +26,7 @@ export async function getDashboardRecentLayers() {
 }
 
 export async function getDashboardActiveLayers() {
-    const res = await fetch('http://192.168.199.247:2024/v1/dashboard/layers/active')
+    const res = await fetch(`${AppConfig.backend.endpoint}/v1/dashboard/layers/active`)
 
     if (!res.ok) {
         // This will activate the closest `error.js` Error Boundary
@@ -35,7 +36,7 @@ export async function getDashboardActiveLayers() {
 }
 
 // NameSpaces
-const pageNamespacesBaseUrl = "http://192.168.199.247:2024/v1/metadata/namespaces/page"
+const pageNamespacesBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/namespaces/page`
 export async function pageNamespaces(pageRequest: { page: number, size: number, name?: string | null }) {
     noStore();
     const { page, size, name } = pageRequest
@@ -57,7 +58,7 @@ export async function pageNamespaces(pageRequest: { page: number, size: number, 
     return res.json();
 }
 
-const namespaceBaseUrl = "http://192.168.199.247:2024/v1/metadata/namespaces"
+const namespaceBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/namespaces`
 export async function createNamespace(data: any) {
 
     const res = await fetch(namespaceBaseUrl, {
@@ -140,8 +141,8 @@ export async function updateNamespace(id: string, data: any) {
 
 
 // Datastore
-const pageDatastoreBaseUrl = "http://192.168.199.247:2024/v1/metadata/datastores/page"
-const datastoreBaseUrl = "http://192.168.199.247:2024/v1/metadata/datastores"
+const pageDatastoreBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/datastores/page`
+const datastoreBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/datastores`
 export async function pageDatastores(pageRequest: { page: number, size: number, name?: string | null }) {
     noStore();
     const { page, size, name } = pageRequest
@@ -246,8 +247,8 @@ export async function removeDatastore(id: string) {
 }
 
 // Datastore
-const pageLayerBaseUrl = "http://192.168.199.247:2024/v1/metadata/feature_layers/page"
-const layerBaseUrl = "http://192.168.199.247:2024/v1/metadata/feature_layers"
+const pageLayerBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/feature_layers/page`
+const layerBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/feature_layers`
 export async function pageFeatureLayer(pageRequest: { page: number, size: number, name?: string | null }) {
     noStore();
     const { page, size, name } = pageRequest
@@ -345,7 +346,7 @@ export async function removeFeatureLayer(id: string) {
 }
 
 // SpatialRef
-const pageSpatialRefBaseUrl = "http://192.168.199.247:2024/v1/metadata/spatial_refs/page"
+const pageSpatialRefBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/spatial_refs/page`
 export async function pageSpatialRef(pageRequest: { page: number, size: number, name?: string | null }) {
     noStore();
     const { page, size, name } = pageRequest
@@ -367,10 +368,24 @@ export async function pageSpatialRef(pageRequest: { page: number, size: number, 
     return res.json();
 }
 
-const spatialRefBaseUrl = "http://192.168.199.247:2024/v1/metadata/spatial_refs"
+const spatialRefBaseUrl = `${AppConfig.backend.endpoint}/v1/metadata/spatial_refs`
 export async function fetchSpatialRefById(id: number) {
     noStore();
     const finalUrl = `${spatialRefBaseUrl}/${id}`
+    const res = await fetch(finalUrl)
+
+    if (!res.ok) {
+        // This will activate the closest `error.js` Error Boundary
+        throw new Error('Failed to fetch data')
+    }
+    return res.json();
+}
+
+// Feature Layer Preview
+
+export async function fetchLayrePreviewInfo(id: string) {
+    noStore()
+    const finalUrl = `${layerBaseUrl}/preview/${id}`
     const res = await fetch(finalUrl)
 
     if (!res.ok) {

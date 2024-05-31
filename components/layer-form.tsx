@@ -63,6 +63,7 @@ const FormSchema = z.object({
         srid: z.coerce.number({ required_error: "Please fill in the srid value.", }).gte(0)
     }),
     enabledRules: z.boolean(),
+    enableBBox: z.boolean(),
     rules: z.array(
         z.object({
             id: z.nullable(z.coerce.number()),
@@ -71,6 +72,14 @@ const FormSchema = z.object({
             filter: z.coerce.string({ required_error: "Please input the rule filter expression.", }),
         })
     ).optional(),
+    bbox: z.object({
+        id: z.nullable(z.coerce.number()),
+        minx: z.coerce.number({ required_error: "Please input the min x.", }),
+        miny: z.coerce.number({ required_error: "Please input the min y.", }),
+        maxx: z.coerce.number({ required_error: "Please input the max x.", }),
+        maxy: z.coerce.number({ required_error: "Please input the max y.", }),
+        natived: z.coerce.boolean({ required_error: "Please input the natived.", }),
+    }).nullable(),
     description: z.string().max(200, {
         message: "description must not be longer than 200 characters."
     })
@@ -83,11 +92,14 @@ export default function FeatureLayerForm({
 
     const [spatialRefs, setSpatialRefs] = useState(initSpatialRefs)
     const [isEnableRules, setIsEnableRules] = useState((featureLayer.rules !== null && featureLayer.rules.length > 0))
+    const [isEnableBBox, setIsEnableBBox] = useState(featureLayer.bbox !== null)
     const [spatialRefParam, setSpatialRefParam] = useState(forceSpatialRef?.name || "")
 
     featureLayer.enabledRules = (featureLayer.rules !== null && featureLayer.rules.length > 0)
-    console.log(featureLayer)
-    console.log((featureLayer.rules !== null && featureLayer.rules.length > 0))
+    featureLayer.enableBBox = featureLayer.bbox !== null
+    
+    // console.log(featureLayer)
+    // console.log((featureLayer.rules !== null && featureLayer.rules.length > 0))
 
     useEffect(() => {
         let ignore = false;
@@ -122,6 +134,11 @@ export default function FeatureLayerForm({
         if (!isEnableRules) {
             data.rules = [];
         }
+        // console.log(data)
+        // if(isEnableBBox && data.bbox && data.bbox.natived === null) {
+        //     data.bbox.natived = false
+        // }
+        // console.log(data)
         handleSubmit(data)
     }
 
@@ -130,7 +147,7 @@ export default function FeatureLayerForm({
         control: form.control,
     })
 
-    function onEnabledRulesChange(value: boolean) {
+    function onEnableRulesChange(value: boolean) {
         setIsEnableRules(value)
     }
 
@@ -385,12 +402,12 @@ export default function FeatureLayerForm({
                             <FormControl>
                                 <Checkbox
                                     checked={isEnableRules}
-                                    onCheckedChange={onEnabledRulesChange}
+                                    onCheckedChange={onEnableRulesChange}
                                 />
                             </FormControl>
                             <div className="space-y-1 leading-none">
                                 <FormLabel>
-                                    EnabledRules
+                                    Enable Pyramid Rules
                                 </FormLabel>
                                 <FormDescription>
                                     This is validateConnections of connections.
@@ -415,7 +432,7 @@ export default function FeatureLayerForm({
                                             id.
                                         </FormDescription>
                                         <FormControl>
-                                            <Input {...field} value={field.value ? field.value : ""} type="number" min={0} max={30} />
+                                            <Input {...field} value={field.value ? field.value : ""} type="number" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -497,6 +514,151 @@ export default function FeatureLayerForm({
                     </Button>
                 </div>)}
 
+                <FormField
+                    control={form.control}
+                    name="enableBBox"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    checked={isEnableBBox}
+                                    onCheckedChange={(value: boolean) => setIsEnableBBox(value)}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                    Enable Feature BBox
+                                </FormLabel>
+                                <FormDescription>
+                                    enable the feature layer bbox.
+                                    {/* <Link href="/examples/forms">mobile settings</Link> page. */}
+                                </FormDescription>
+                                <FormMessage />
+                            </div>
+                        </FormItem>
+                    )}
+                />
+
+                {isEnableBBox && (
+                    <div className="flex flex-col space-y-2">
+                        <div className="flex flex-row items-end space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="bbox.id"
+                                render={({ field }) => (
+                                    <FormItem className="hidden">
+                                        <FormLabel className="sr-only">
+                                            BBox ID
+                                        </FormLabel>
+                                        <FormDescription className="sr-only">
+                                            id.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ? field.value : ""} type="number" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="bbox.minx"
+                                render={({ field }) => (
+                                    <FormItem className="basis-1/4">
+                                        <FormLabel>
+                                            Min X
+                                        </FormLabel>
+                                        <FormDescription>
+                                            {/* min x. */}
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="bbox.miny"
+                                render={({ field }) => (
+                                    <FormItem className="basis-1/4">
+                                        <FormLabel>
+                                            Min Y
+                                        </FormLabel>
+                                        <FormDescription>
+                                            {/* min y. */}
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="bbox.maxx"
+                                render={({ field }) => (
+                                    <FormItem className="basis-1/4">
+                                        <FormLabel>
+                                            Max X
+                                        </FormLabel>
+                                        <FormDescription>
+                                            {/* max x. */}
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="bbox.maxy"
+                                render={({ field }) => (
+                                    <FormItem className="basis-1/4">
+                                        <FormLabel>
+                                            Max Y
+                                        </FormLabel>
+                                        <FormDescription>
+                                            {/* max y. */}
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Input {...field} type="number" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="bbox.natived"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value === null ? false : field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                        <FormLabel>
+                                            Use Native SpatialReference.
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Use the native coordinate reference system to set the BBox.{field.value}
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </div>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                )}
 
                 <FormField
                     control={form.control}

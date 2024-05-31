@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Layers } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -98,7 +98,7 @@ export default async function FeatureLayers({
                                     </TableCell>
                                     <TableCell className="hidden md:table-cell">{getGeomType(featureLayer.view.geometryType)}</TableCell>
                                     <TableCell className="hidden md:table-cell">{featureLayer.view.srid}</TableCell>
-                                    <TableCell className="hidden md:table-cell">{featureLayer.spatialReferenceId ? featureLayer.spatialReferenceInfo.srid: ""}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{featureLayer.spatialReferenceId ? featureLayer.spatialReferenceInfo.srid : ""}</TableCell>
                                     {/* <TableCell className="hidden md:table-cell">
                                         {featureLayer.description}
                                     </TableCell> */}
@@ -114,6 +114,25 @@ export default async function FeatureLayers({
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" >
+                                                <DropdownMenuLabel>Preview</DropdownMenuLabel>
+                                                <DropdownMenuItem className="hover:bg-muted">
+                                                    <Link
+                                                        href={`/layers/${featureLayer.id}/preview?schema=EPSG:4490`}
+                                                        className="flex items-center rounded-lg text-muted-foreground transition-all hover:text-primary"
+                                                    >
+                                                        <Layers className="mr-2 h-4 w-4" />
+                                                        <span>EPSG:4490</span>
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                <Link
+                                                        href={`/layers/${featureLayer.id}/preview?schema=EPSG:3857&name=${featureLayer.name}`}
+                                                        className="flex items-center rounded-lg text-muted-foreground transition-all hover:text-primary"
+                                                    >
+                                                        <Layers className="mr-2 h-4 w-4" />
+                                                        <span>EPSG:3857</span>
+                                                    </Link>
+                                                </DropdownMenuItem>
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 <DropdownMenuItem className="hover:bg-muted">
                                                     <Link
