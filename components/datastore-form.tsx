@@ -33,17 +33,7 @@ const FormSchema = z.object({
     }).max(50, {
         message: "name must not be longer than 50 characters."
     }),
-    namespaceId: z.string({ required_error: "Please select an namespace.", }).transform((val, ctx) => {
-        const parsed = parseFloat(val);
-        if (isNaN(parsed)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Invalid number format",
-            });
-            return z.NEVER;
-        }
-        return parsed;
-    }),
+    namespaceId: z.coerce.number({ required_error: "Please select an namespace.", }).gt(0),
     description: z.string().max(200, {
         message: "description must not be longer than 200 characters."
     }),

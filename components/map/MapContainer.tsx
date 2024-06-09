@@ -66,7 +66,7 @@ export default function MapContainer({ layer }: { layer: LayerPreviewInfo }) {
     const source = {
         id: sourceId,
         type: "vector",
-        tiles: [`${AppConfig.backend.endpoint}/tiles/${namespace}/${name}/${schema}/{z}/{y}/{x}.pbf`],
+        tiles: [`${AppConfig.backend.endpoint}/v1/tiles/${namespace}/${name}/${schema}/{z}/{y}/{x}.pbf`],
         // 设置数据的显示边界, 超出边界不做数据请求
         bounds
     }

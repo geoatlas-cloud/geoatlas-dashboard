@@ -80,6 +80,7 @@ export async function createNamespace(data: any) {
 }
 
 export async function fetchNamespaceById(id: string) {
+    noStore();
     const finalUrl = `${namespaceBaseUrl}/${id}`
     const res = await fetch(finalUrl)
 
@@ -91,6 +92,7 @@ export async function fetchNamespaceById(id: string) {
 }
 
 export async function fetchNamespaceList() {
+    noStore()
     const finalUrl = `${namespaceBaseUrl}/list`
     const res = await fetch(finalUrl)
 
@@ -165,6 +167,7 @@ export async function pageDatastores(pageRequest: { page: number, size: number, 
 }
 
 export async function fetchDatastoreList() {
+    noStore();
     const finalUrl = `${datastoreBaseUrl}/list`
     const res = await fetch(finalUrl)
 
@@ -196,6 +199,7 @@ export async function createDatastore(data: any) {
 }
 
 export async function fetchDatastoreById(id: string) {
+    noStore();
     const finalUrl = `${datastoreBaseUrl}/${id}`
     const res = await fetch(finalUrl)
 
@@ -294,6 +298,7 @@ export async function createFeatureLayer(data: any) {
 }
 
 export async function fetchFeatureLayerById(id: string) {
+    noStore();
     const finalUrl = `${layerBaseUrl}/${id}`
     const res = await fetch(finalUrl)
 
