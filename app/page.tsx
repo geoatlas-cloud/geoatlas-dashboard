@@ -104,7 +104,7 @@ export default async function Dashboard() {
               </CardDescription>
             </div>
             <Button asChild size="sm" className="ml-auto gap-1">
-              <Link href="#">
+              <Link href="/layers">
                 View All
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
@@ -160,7 +160,7 @@ export default async function Dashboard() {
             <CardTitle>Active Layers</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-8">
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
                 <AvatarImage src="/avatars/01.png" alt="Avatar" />
                 <AvatarFallback>OM</AvatarFallback>
@@ -174,8 +174,8 @@ export default async function Dashboard() {
                 </p>
               </div>
               <div className="ml-auto font-medium">+$1,999.00</div>
-            </div>
-            <div className="flex items-center gap-4">
+            </div> */}
+            {/* <div className="flex items-center gap-4">
               <Avatar className="hidden h-9 w-9 sm:flex">
                 <AvatarImage src="/avatars/02.png" alt="Avatar" />
                 <AvatarFallback>JL</AvatarFallback>
@@ -234,7 +234,7 @@ export default async function Dashboard() {
                 </p>
               </div>
               <div className="ml-auto font-medium">+$39.00</div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>

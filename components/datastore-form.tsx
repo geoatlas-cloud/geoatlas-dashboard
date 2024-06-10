@@ -216,7 +216,7 @@ export default function DatastoreForm({ datastore, namespaces, handleSubmit }: {
                         <FormItem>
                             <FormLabel>Database Name</FormLabel>
                             <FormControl>
-                                <Input placeholder="5432" {...field} />
+                                <Input placeholder="database name" {...field} />
                             </FormControl>
                             <FormDescription>
                                 This is database of datastore instance.
