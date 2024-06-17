@@ -24,6 +24,7 @@ export default function MapboxEnhanceRender({ style, source, layers, viewProps, 
             mapStyle={style}
             mapboxAccessToken={AppConfig.map.mapbox.token}
             // 其他属性直接传递即可, 特么的调了一下午
+            // 但是这个却是过不了typescript的类型检查, 我是不知道如何处理, 目前只能关闭类型检查
             crs={schema}
         >
             <Source {...source}>

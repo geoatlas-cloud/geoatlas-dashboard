@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  web-app:
+    container_name: geo-atlas-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # ENV_VARIABLE: ${ENV_VARIABLE}
+        NEXT_PUBLIC_BASE_MAP_TYPE: ${NEXT_PUBLIC_BASE_MAP_TYPE}
+        NEXT_PUBLIC_BASE_MAP_TILE_KEY: ${NEXT_PUBLIC_BASE_MAP_TILE_KEY}
+        NEXT_PUBLIC_WEB_MERCATOR_MAP_ENGINE: ${NEXT_PUBLIC_WEB_MERCATOR_MAP_ENGINE}
+        NEXT_PUBLIC_CGCS2000_MAP_ENGINE: ${NEXT_PUBLIC_CGCS2000_MAP_ENGINE}
+        NEXT_PUBLIC_BACKEND_ENDPOINT: ${NEXT_PUBLIC_BACKEND_ENDPOINT}
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - internal_access
+      - external_access
+
+  # Add more containers below (nginx, postgres, etc.)
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  internal_access:
+    internal: true
+  # 外部网络 access
+  external_access:
