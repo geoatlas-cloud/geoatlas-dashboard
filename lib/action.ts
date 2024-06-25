@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { AppConfig } from './AppConfig';
 
 export async function getDashboardTotalCount() {
+    noStore();
     const res = await fetch(`${AppConfig.backend.endpoint}/v1/dashboard/count`)
 
     if (!res.ok) {
