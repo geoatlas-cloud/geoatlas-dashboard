@@ -17,7 +17,8 @@ export type Namespace = {
 
 export enum DatabaseType {
   postgis = "postgis",
-  sqlserver = "sqlserver"
+  sqlserver = "sqlserver",
+  mysql = "mysql"
 }
 
 export const initDatastore: Datastore = {
